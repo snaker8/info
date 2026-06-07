@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>학생 데이터화 관리 전환 — 회의 대시보드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d1719; --panel:#13242a; --panel2:#172d33; --line:rgba(180,210,205,.12);
+    --txt:#e9f2ef; --muted:#9bb2ad; --faint:#6f8a86;
+    --green:#36d18b; --green-d:#1f9c64; --amber:#e9a847; --slate:#8aa6ad; --red:#e0705f;
+    --glow:0 0 0 1px rgba(54,209,139,.25), 0 18px 50px -20px rgba(54,209,139,.35);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(54,209,139,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(40,120,140,.10), transparent 55%),
+      var(--ink);
+    color:var(--txt); font-family:'IBM Plex Sans KR',sans-serif; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .serif{font-family:'Song Myung',serif}
+  a{color:inherit;text-decoration:none}
+
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+    background:rgba(13,23,25,.72);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .brand{font-weight:700;letter-spacing:.5px;font-size:15px;display:flex;align-items:center;gap:9px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  .nav-links{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+  .nav-links a{font-size:13px;color:var(--muted);transition:color .2s;white-space:nowrap}
+  .nav-links a:hover{color:var(--green)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  section{padding:84px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:14px}
+  h2.sec{font-size:clamp(26px,3.4vw,40px);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-.5px}
+  .sec-sub{color:var(--muted);max-width:760px;font-size:15.5px;margin-bottom:38px}
+
+  /* HERO */
+  .hero{padding:78px 0 70px;border-bottom:1px solid var(--line)}
+  .hero .tag{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--green);border:1px solid rgba(54,209,139,.3);padding:7px 13px;border-radius:100px;margin-bottom:26px}
+  .hero h1{font-size:clamp(34px,5.4vw,62px);line-height:1.08;letter-spacing:-1.5px;font-weight:400;margin-bottom:22px}
+  .hero h1 b{font-weight:700}
+  .hero h1 .hl{color:var(--green)}
+  .hero .lede{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:720px;margin-bottom:30px}
+  .meta{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:8px}
+  .chip b{color:var(--txt);font-weight:600}
+
+  /* THESIS STRIP */
+  .thesis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:42px}
+  .thesis>div{background:var(--panel);padding:22px 20px}
+  .thesis .n{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green);margin-bottom:6px}
+  .thesis .t{font-size:14.5px;font-weight:600}
+  .thesis .arrow{color:var(--faint);font-size:13px}
+
+  /* CARDS */
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:26px;position:relative;overflow:hidden}
+  .card .hd{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .card h3{font-size:18px;font-weight:700;letter-spacing:-.3px}
+  .badge{font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:4px 9px;border-radius:6px;letter-spacing:.5px;font-weight:500}
+  .b-now{background:rgba(138,166,173,.16);color:var(--slate);border:1px solid rgba(138,166,173,.3)}
+  .b-warn{background:rgba(233,168,71,.13);color:var(--amber);border:1px solid rgba(233,168,71,.3)}
+  .b-tg{background:rgba(54,209,139,.14);color:var(--green);border:1px solid rgba(54,209,139,.32)}
+  .card .role{font-size:12.5px;color:var(--faint);margin-bottom:14px;font-family:'IBM Plex Mono',monospace}
+  .card ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .card li{font-size:14px;color:var(--muted);padding-left:18px;position:relative}
+  .card li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--green-d)}
+  .card li.warn::before{background:var(--amber)}
+  .card .limit{margin-top:16px;padding-top:15px;border-top:1px dashed var(--line);font-size:13px;color:var(--amber)}
+  .card .limit b{color:var(--txt)}
+
+  /* FLOW */
+  .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin-top:8px}
+  .step{position:relative;padding:24px 18px;text-align:center}
+  .step .num{width:42px;height:42px;border-radius:50%;border:1px solid rgba(54,209,139,.4);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green);background:rgba(54,209,139,.07)}
+  .step h4{font-size:15px;font-weight:700;margin-bottom:7px}
+  .step p{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .step:not(:last-child)::after{content:'→';position:absolute;right:-9px;top:38px;color:var(--faint);font-size:18px}
+  .flow .step:last-child .num{background:var(--green);color:#08110d;border-color:var(--green);box-shadow:0 0 22px rgba(54,209,139,.5)}
+
+  /* WHY cards */
+  .why{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .why .card{padding:22px 24px}
+  .why .ico{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--green);margin-bottom:8px;letter-spacing:1px}
+  .why h3{font-size:16.5px;margin-bottom:8px}
+  .why p{font-size:13.5px;color:var(--muted)}
+
+  /* TABLE */
+  .tbl-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:680px}
+  th,td{text-align:left;padding:15px 18px;font-size:13.5px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--panel2);font-size:12px;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+  thead th:nth-child(2){color:var(--slate)}
+  thead th:nth-child(3){color:var(--green)}
+  tbody tr:hover{background:rgba(54,209,139,.04)}
+  td:first-child{font-weight:600;color:var(--txt);width:24%}
+  .yes{color:var(--green);font-weight:600}
+  .no{color:var(--red)}
+  .par{color:var(--amber)}
+  td small{display:block;color:var(--faint);font-size:11.5px;margin-top:3px;font-weight:400}
+
+  /* AGENDA */
+  .agenda{display:flex;flex-direction:column;gap:0}
+  .ag{display:grid;grid-template-columns:64px 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line)}
+  .ag:last-child{border-bottom:none}
+  .ag .tt{font-family:'IBM Plex Mono',monospace;color:var(--green);font-size:13px;padding-top:2px}
+  .ag h4{font-size:16px;font-weight:700;margin-bottom:4px}
+  .ag p{font-size:13.5px;color:var(--muted)}
+
+  /* ROADMAP */
+  .road{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .ph{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;position:relative}
+  .ph .s{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);letter-spacing:1px;margin-bottom:9px}
+  .ph h4{font-size:15px;margin-bottom:7px}
+  .ph p{font-size:12.5px;color:var(--muted)}
+
+  /* CALLOUT */
+  .note{background:rgba(233,168,71,.07);border:1px solid rgba(233,168,71,.28);border-radius:14px;padding:22px 24px;margin-top:30px}
+  .note h4{color:var(--amber);font-size:14px;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px}
+  .note ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+  .note li{font-size:13.5px;color:var(--muted);padding-left:16px;position:relative}
+  .note li::before{content:'?';position:absolute;left:0;color:var(--amber);font-weight:700}
+
+  footer{padding:40px 0;text-align:center;color:var(--faint);font-size:12.5px}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  @media(max-width:880px){
+    .g3,.why{grid-template-columns:1fr}
+    .flow{grid-template-columns:1fr 1fr}
+    .step:not(:last-child)::after{display:none}
+    .road{grid-template-columns:1fr 1fr}
+    .nav-links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <div class="brand"><span class="dot"></span> 학생 데이터화 관리 전환 · 회의 자료</div>
+    <div class="nav-links">
+      <a href="#now">현황 진단</a>
+      <a href="#vision">데이터화 비전</a>
+      <a href="#why">전환 당위성</a>
+      <a href="#compare">핵심 비교</a>
+      <a href="#plan">관별 전략</a>
+      <a href="#agenda">회의 안건</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero wrap">
+  <div class="tag"><span class="dot" style="width:7px;height:7px"></span> 과사람 차세대 학생관리 체계</div>
+  <h1>흩어진 학습 데이터를<br><b class="hl">학생 단위로 누적</b>해<br><span class="serif">종합 생기부</span>까지 잇는다</h1>
+  <p class="lede">지금 각 관은 매쓰플랫을 서로 다른 방식으로 쓰고 있습니다. 문제 출제 도구에 머물러 있는 데이터를 <b style="color:var(--txt)">개별 학생 단위로 추적·축적</b>하고, 그것을 ERP(위드아카)에 접목해 <b style="color:var(--txt)">근거 있는 출제·관리와 종합 학원 생기부</b>로 발전시키기 위한 전환 논의 자료입니다.</p>
+  <div class="meta">
+    <span class="chip">대상 · <b>초등관 · 중등 특목관 · 자사관</b></span>
+    <span class="chip">현재 도구 · <b>매쓰플랫</b></span>
+    <span class="chip">전환 검토 · <b>매쓰홀릭</b></span>
+    <span class="chip">목표 · <b>위드아카 연동 → 종합 생기부</b></span>
+  </div>
+
+  <div class="thesis">
+    <div><div class="n">01</div><div class="t">개별 학생<br>데이터화</div></div>
+    <div><div class="n">02</div><div class="t">데이터 근거<br>학생관리</div></div>
+    <div><div class="n">03</div><div class="t">데이터화된<br>성장관리</div></div>
+    <div><div class="n">04</div><div class="t">위드아카<br>ERP 연동</div></div>
+    <div><div class="n">05</div><div class="t" style="color:var(--green)">종합 학원<br>생기부</div></div>
+  </div>
+</header>
+
+<!-- NOW -->
+<section id="now" class="wrap reveal">
+  <div class="kicker">01 · 현황 진단</div>
+  <h2 class="sec">관별로 매쓰플랫을 쓰는 방식이 다릅니다</h2>
+  <p class="sec-sub">같은 도구를 쓰지만 데이터가 쌓이는 방식이 제각각입니다. 특히 "학생 등록 없이 문제은행용"으로 쓰는 관은 <b style="color:var(--amber)">학생 단위 데이터가 거의 남지 않아</b> 생기부의 원천이 만들어지지 않습니다.</p>
+  <div class="grid g3">
+    <div class="card">
+      <div class="hd"><h3>초등관</h3></div>
+      <div class="role">매쓰플랫 Basic(학생 추가) 또는 Premium</div>
+      <ul>
+        <li>학생을 등록해 출제·채점 → 학생별 데이터가 축적되는 형태</li>
+        <li>유형분석·리포트 등 학습 데이터 활용 기반 존재</li>
+      </ul>
+      <div class="limit"><b>한계 ·</b> Basic은 30명 초과 시 인원당 과금, 데이터가 매쓰플랫 안에 갇혀 ERP·생기부로 흐르지 않음</div>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>중등 특목관</h3></div>
+      <div class="role">매쓰플랫 — 학생 등록 없이 문제은행용</div>
+      <ul>
+        <li class="warn">출제·인쇄 중심으로만 사용</li>
+        <li class="warn">학생을 등록하지 않고, <b style="color:var(--txt)">따로 만든 자체 형식으로 관리 중</b></li>
+      </ul>
+      <div class="limit"><b>한계 ·</b> 자체 형식이라 데이터가 표준화·디지털화되지 않아 생기부로 연결하기 어려움</div>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>자사관</h3></div>
+      <div class="role">매쓰플랫 출제 → 오르조 업로드·출제 + 자체 개발 플랫폼(학부모 피드백)</div>
+      <ul>
+        <li class="warn">매쓰플랫으로 출제한 문제를 선생님이 오르조에 다시 업로드해 학생에게 출제</li>
+        <li class="warn">오르조에 데이터는 쌓이나 <b style="color:var(--txt)">학생 개별 성장 추이·오답 출제·취약유형 관리는 거의 안 됨</b></li>
+        <li class="warn">리포트 기능 거의 없음 · 학부모 피드백은 별도 자체 개발 플랫폼으로</li>
+      </ul>
+      <div class="limit"><b>한계 ·</b> 데이터가 여러 도구로 분산·이중 업로드되고 학생 단위 성장·취약 데이터가 미흡 → 생기부 원천으로 부족</div>
+    </div>
+  </div>
+  <div class="note">
+    <h4>공통 문제</h4>
+    <ul>
+      <li>관마다 사용 방식이 달라 <b style="color:#e9f2ef">데이터 표준이 없습니다</b> — 통합 생기부를 만들 수 없습니다.</li>
+      <li>데이터가 학생 단위로 구조화되지 않으면 ERP(위드아카) 연동·종합 생기부가 불가능합니다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- VISION -->
+<section id="vision" class="wrap reveal">
+  <div class="kicker">02 · 목표 운영 모델</div>
+  <h2 class="sec">데이터화된 학생관리, 그리고 종합 생기부</h2>
+  <p class="sec-sub">핵심은 "출제 도구"에서 "학생 데이터 자산"으로의 이동입니다. 개별 학생의 학습이 매일 데이터로 쌓이고, 그 데이터가 출제와 관리의 근거가 되며, 최종적으로 ERP를 통해 종합 생기부로 산출되는 구조입니다.</p>
+  <div class="flow">
+    <div class="step"><div class="num">1</div><h4>개별 학생 데이터화</h4><p>교재 · 과제 · 평가가 학생 단위 데이터로 누적</p></div>
+    <div class="step"><div class="num">2</div><h4>데이터 근거 기반 학생관리</h4><p>과제 출제 · 오답관리 · 취약유형 분석</p></div>
+    <div class="step"><div class="num">3</div><h4>데이터화된 성장관리</h4><p>학생 성장 추이 — 과정·교재 완성도·학습 성취도 분석</p></div>
+    <div class="step"><div class="num">4</div><h4>위드아카 연동</h4><p>학습 데이터를 과사람 ERP 운영 데이터와 통합</p></div>
+    <div class="step"><div class="num">5</div><h4>종합 생기부</h4><p>학생별 종합 학원 생활기록부 산출</p></div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section id="why" class="wrap reveal">
+  <div class="kicker">03 · 전환 당위성</div>
+  <h2 class="sec">왜 매쓰홀릭으로 통일해야 하는가</h2>
+  <p class="sec-sub">데이터화 학생관리와 생기부라는 목표 기준으로 보면, 매쓰홀릭은 "학생 단위로 매일 데이터가 쌓이는" 설계가 기본에 가깝습니다. 아래는 실제 화면·공식 자료로 확인한 근거입니다.</p>
+  <div class="why">
+    <div class="card">
+      <div class="ico">DATA · 일자형</div>
+      <h3>학생 × 요일 달력형 학습현황</h3>
+      <p>학생 행을 펼치면 그날그날의 과제·완료비율·정답률이 일자별로 누적됩니다. 일일 단위 개별 데이터가 자연스럽게 쌓이는 구조 — 생기부의 1차 원천.</p>
+    </div>
+    <div class="card">
+      <div class="ico">FEEDBACK · 입문등급</div>
+      <h3>AI 풀이채점 (개별 피드백)</h3>
+      <p>학생 풀이를 단계별로 분석해 틀린 단계·필수 개념을 짚어줍니다. 라이트 단계부터 사용(포인트 차감). 개별 피드백 데이터가 학생별로 남습니다.</p>
+    </div>
+    <div class="card">
+      <div class="ico">GROWTH · 시계열</div>
+      <h3>진단평가 회차 운영</h3>
+      <p>입학·주간·월간·단원 평가를 회차로 운영 → 성장 추이가 시계열 데이터로 축적됩니다. 모바일 보고서(카톡·SMS)로 일·주·월 리포트 자동 전달.</p>
+    </div>
+    <div class="card">
+      <div class="ico">SOURCE · 근거출제</div>
+      <h3>교재채점 · 연산 · 시험대장</h3>
+      <p>시중교재 채점(빠른정답·단원별 정답률), 연산대장, 학교 기출 AI 변형까지 — 출제와 채점 자체가 학생 데이터로 환원됩니다.</p>
+    </div>
+    <div class="card">
+      <div class="ico">STRATEGY · 프리미엄</div>
+      <h3>유형 이해도 · 취약유형 과제</h3>
+      <p>프리미엄에서 단원별 유형 이해도(누적 종합)·취약유형 자동 과제·유형학습 강의가 더해져 데이터 기반 개별 전략이 완성됩니다.</p>
+    </div>
+    <div class="card">
+      <div class="ico">ERP · 생기부</div>
+      <h3>학생 단위 데이터 = 생기부의 원천</h3>
+      <p>모든 활동이 학생 단위로 구조화되므로, ERP(위드아카) 연동 시 종합 생기부로 환원하기 유리합니다. <span style="color:var(--amber)">※ 실제 연동 방식은 확인 필요(아래 참조)</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section id="compare" class="wrap reveal">
+  <div class="kicker">04 · 핵심 비교 (입문 등급)</div>
+  <h2 class="sec">매쓰플랫 베이직 vs 매쓰홀릭 라이트</h2>
+  <p class="sec-sub">데이터화 관리 관점의 실질 차이만 정리했습니다. "학생 스스로 하는 유형학습(self-study)"은 <b style="color:var(--txt)">양쪽 다 프리미엄</b>이라 입문 등급에선 무승부입니다.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>항목</th><th>매쓰플랫 베이직</th><th>매쓰홀릭 라이트</th></tr></thead>
+      <tbody>
+        <tr><td>학생별 데이터 축적</td><td>문항→유형 누적 <small>단, 학생 등록 시 / 교사 전용 뷰</small></td><td><span class="yes">일자(달력)형 + 문항·난이도·단원</span><small>학생 행 펼침 → 일자별 학습</small></td></tr>
+        <tr><td>일일 · 달력형 관리</td><td class="par">유형격자·리포트 중심<small>달력은 주로 출결</small></td><td><span class="yes">학생×요일 달력 + 일일 리포트</span><small>카톡·SMS 발송</small></td></tr>
+        <tr><td>개별 피드백 (AI 풀이채점)</td><td class="no">✗ (프리미엄)</td><td><span class="yes">○ 단계 분석</span><small>포인트 차감</small></td></tr>
+        <tr><td>진단평가 출제 도구</td><td class="no">✗ (유형분석·리포트로 대체)</td><td><span class="yes">○ 입학·주간·월간·단원</span></td></tr>
+        <tr><td>유형 종합 진단 (교사용)</td><td class="par">△ 누적 격자<small>교사 전용 · 30명 한도</small></td><td class="par">△ 채점 후 유형분석<small>누적 "유형 이해도"는 프리미엄</small></td></tr>
+        <tr><td>학생 유형학습 (self-study)</td><td class="no">✗ 프리미엄</td><td class="no">✗ 프리미엄 <small>→ 양쪽 동일</small></td></tr>
+        <tr><td>연산</td><td class="par">△ 단원 내 포함</td><td><span class="yes">○ 연산대장 전용</span></td></tr>
+        <tr><td>내신 · 기출 시험지</td><td><span class="yes">○ 내신관(학교 기출)</span></td><td><span class="yes">○ 시험대장(AI 원본 변형)</span></td></tr>
+        <tr><td>개념 동영상(강의)</td><td><span class="yes">○ 단원별 개념 영상 포함</span><small>문제풀이 동영상은 프리미엄</small></td><td class="no">✗ (강의는 프리미엄)<small>2만 개 개념·유형해설 강의</small></td></tr>
+        <tr><td>운영행정 (출결·교육비·문자)</td><td><span class="yes">○ 통합</span><small>문자 건당 유료</small></td><td class="par">△ 학습 보고서 중심</td></tr>
+        <tr><td>비용 구조</td><td class="par">30명 포함 + 인원당 과금<small>대형일수록 누적</small></td><td class="par">정액성 + 크레딧<small>정찰가 비공개(상담)</small></td></tr>
+        <tr><td>ERP·생기부 연계 적합성</td><td class="par">출제도구 성격<small>학생 미등록 시 데이터 공백</small></td><td><span class="yes">학생 단위 데이터 구조</span><small>※ 위드아카 연동 방식 확인 필요</small></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:12px;color:var(--faint);margin-top:14px" class="mono">실측 기준: 매쓰플랫(베이직 계정 직접 확인) · 매쓰홀릭(프리미엄 계정에서 라이트 해당 기능 확인) · 일부 등급 경계는 공식 안내(matholic.com) 기준.</p>
+</section>
+
+<!-- PLAN -->
+<section id="plan" class="wrap reveal">
+  <div class="kicker">05 · 관별 전환 전략</div>
+  <h2 class="sec">관별로 무엇을 어떻게 가져갈 것인가</h2>
+  <p class="sec-sub">관마다 현재 상태가 다르므로 전환 경로도 다릅니다. 공통 목표는 "학생 단위 데이터 표준화 → 생기부 연결".</p>
+  <div class="grid g3">
+    <div class="card">
+      <div class="hd"><h3>초등관</h3></div>
+      <ul>
+        <li>이미 학생 등록 기반 → 매쓰홀릭으로 데이터 표준 이전</li>
+        <li>일일 달력형 관리 + 일일 리포트로 학부모 소통 강화</li>
+        <li>규모(인원) 기준으로 라이트/프리미엄 결정</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>중등 특목관</h3></div>
+      <ul>
+        <li class="warn">최우선 과제: <b style="color:var(--txt)">학생 등록 체계 도입</b></li>
+        <li>문제은행 사용을 "채점·데이터 축적"까지 확장</li>
+        <li>진단평가 회차로 특목 대비 성장 데이터 확보</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>자사관</h3></div>
+      <ul>
+        <li>매쓰홀릭 + 생기부 흐름의 표준 케이스로 선(先) 적용</li>
+        <li>유형 이해도·취약유형 과제(프리미엄)로 개별 전략 검증</li>
+        <li>전관 확대 전 데이터→생기부 산출 검증</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- AGENDA -->
+<section id="agenda" class="wrap reveal">
+  <div class="kicker">06 · 회의 진행</div>
+  <h2 class="sec">오늘 회의 안건</h2>
+  <p class="sec-sub">각 관의 현재 사용 방식을 듣고, 데이터화 비전을 공유한 뒤, 전환 당위성과 향후 진행을 함께 결정합니다.</p>
+  <div class="agenda">
+    <div class="ag"><div class="tt">PART 1</div><div><h4>관별 현재 매쓰플랫 사용 방식 공유</h4><p>초등관 · 중등 특목관 · 자사관 — 어떻게, 어디까지 활용 중인지, 학생 데이터가 실제로 쌓이고 있는지 점검</p></div></div>
+    <div class="ag"><div class="tt">PART 2</div><div><h4>데이터화 학생관리 비전 공유</h4><p>개별 추적 → 근거 출제 → 데이터 관리 → 위드아카 연동 → 종합 생기부 목표 정렬</p></div></div>
+    <div class="ag"><div class="tt">PART 3</div><div><h4>매쓰홀릭 전환 당위성 검토</h4><p>학생 단위 일일 데이터·AI 피드백·진단평가·생기부 연계 적합성 근거 검토</p></div></div>
+    <div class="ag"><div class="tt">PART 4</div><div><h4>향후 진행 로드맵 논의 · 결정</h4><p>파일럿 관 선정, 라이트/프리미엄 결정, 위드아카 연동 확인, 전관 확대 일정</p></div></div>
+  </div>
+
+  <h2 class="sec" style="margin-top:54px;font-size:22px">전환 로드맵(안)</h2>
+  <div class="road" style="margin-top:18px">
+    <div class="ph"><div class="s">STEP 1</div><h4>현황·데이터 진단</h4><p>관별 사용 방식·학생 데이터 축적 현황 파악</p></div>
+    <div class="ph"><div class="s">STEP 2</div><h4>파일럿 적용</h4><p>1개 관(자사관 권장) 매쓰홀릭 적용 · 등급 결정</p></div>
+    <div class="ph"><div class="s">STEP 3</div><h4>ERP 연동 설계</h4><p>매쓰홀릭 데이터 → 위드아카 연동 방식 확인·설계</p></div>
+    <div class="ph"><div class="s">STEP 4</div><h4>전관 확대 + 생기부</h4><p>표준 정착 후 확대 · 종합 생기부 템플릿 정의</p></div>
+  </div>
+
+  <div class="note">
+    <h4>회의 전 확인 필요 (정직한 미확정 사항)</h4>
+    <ul>
+      <li><b style="color:#e9f2ef">매쓰홀릭 ↔ 위드아카(과사람 ERP) 데이터 연동</b>의 실제 지원 여부·방식 (API/내보내기 등) — 본 자료는 "데이터 구조상 유리"까지만 확인, 실연동은 양사 확인 필요</li>
+      <li><b style="color:#e9f2ef">관별 인원 기준 견적</b> — 매쓰홀릭 라이트 vs 프리미엄 (정찰가 비공개, 상담 필요)</li>
+      <li><b style="color:#e9f2ef">매쓰플랫 인원당 추가 과금 단가</b> — 현 비용 대비 전환 손익분기 산출용</li>
+      <li><b style="color:#e9f2ef">종합 생기부 산출 항목</b> 정의 — 어떤 데이터를 어떤 형태로 학부모/내부에 제공할지</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  학생 데이터화 관리 전환 회의 자료 · 내부 검토용 · 수치/등급 경계는 실측 및 공식 안내 기준이며 확정 견적은 별도 협의 필요
+</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
