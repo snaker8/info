@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>매쓰홀릭 파일럿 시범 운영 · 2차 회의</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d1719; --panel:#13242a; --panel2:#172d33; --line:rgba(180,210,205,.12);
+    --txt:#e9f2ef; --muted:#9bb2ad; --faint:#6f8a86;
+    --green:#36d18b; --green-d:#1f9c64; --amber:#e9a847; --slate:#8aa6ad; --red:#e0705f; --blue:#5fb0d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(54,209,139,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(40,120,140,.10), transparent 55%),
+      var(--ink);
+    color:var(--txt);font-family:'IBM Plex Sans KR',sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'IBM Plex Mono',monospace}
+  .serif{font-family:'Song Myung',serif}
+  a{color:inherit;text-decoration:none}
+
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);background:rgba(13,23,25,.72);border-bottom:1px solid var(--line)}
+  .nav-in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+  .brand{font-weight:700;letter-spacing:.5px;font-size:15px;display:flex;align-items:center;gap:9px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  .nav-links{display:flex;gap:18px;flex-wrap:wrap;margin-left:auto}
+  .nav-links a{font-size:13px;color:var(--muted);transition:color .2s;white-space:nowrap}
+  .nav-links a:hover{color:var(--green)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  section{padding:84px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:14px}
+  h2.sec{font-size:clamp(26px,3.4vw,40px);font-weight:700;line-height:1.2;margin-bottom:10px;letter-spacing:-.5px}
+  .sec-sub{color:var(--muted);max-width:780px;font-size:15.5px;margin-bottom:38px}
+
+  .hero{padding:78px 0 70px;border-bottom:1px solid var(--line)}
+  .hero .tag{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:2px;color:var(--green);border:1px solid rgba(54,209,139,.3);padding:7px 13px;border-radius:100px;margin-bottom:26px}
+  .hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.08;letter-spacing:-1.5px;font-weight:400;margin-bottom:22px}
+  .hero h1 b{font-weight:700}.hero h1 .hl{color:var(--green)}
+  .hero .lede{font-size:clamp(16px,1.6vw,19px);color:var(--muted);max-width:730px;margin-bottom:30px}
+  .meta{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:8px}
+  .chip b{color:var(--txt);font-weight:600}
+
+  .prog{display:flex;align-items:stretch;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:42px;flex-wrap:wrap}
+  .prog>div{background:var(--panel);padding:18px 20px;flex:1;min-width:150px;position:relative}
+  .prog .s{font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:5px;letter-spacing:1px}
+  .prog .l{font-size:13.5px;font-weight:600}
+  .done .s{color:var(--green-d)} .done .l{color:var(--muted)}
+  .cur{background:var(--panel2)!important} .cur .s{color:var(--green)} .cur .l{color:var(--txt)}
+  .next .s{color:var(--faint)} .next .l{color:var(--faint)}
+
+  .grid{display:grid;gap:20px}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:26px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+  .card .hd{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .card h3{font-size:18px;font-weight:700;letter-spacing:-.3px}
+  .card .role{font-size:12.5px;color:var(--faint);margin-bottom:14px;font-family:'IBM Plex Mono',monospace}
+  .rec-label{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:1px;color:var(--green);border:1px solid rgba(54,209,139,.32);border-radius:6px;padding:4px 9px;margin-bottom:12px}
+  .card ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .card li{font-size:14px;color:var(--muted);padding-left:18px;position:relative}
+  .card li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--green-d)}
+  .card .focus{margin-top:14px;font-size:13px;color:var(--green)}
+  .card .focus b{color:var(--txt)}
+
+  .fill{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+  .fill-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:1px;margin-bottom:9px;display:flex;align-items:center;gap:6px}
+  .fill-box{min-height:92px;border:1px dashed rgba(233,168,71,.4);border-radius:10px;padding:10px 13px;font-size:13.5px;color:var(--txt);background:rgba(233,168,71,.04);outline:none;line-height:31px;
+    background-image:repeating-linear-gradient(transparent,transparent 30px,rgba(180,210,205,.10) 30px,rgba(180,210,205,.10) 31px)}
+  .fill-box:empty:before{content:attr(data-ph);color:var(--faint);font-family:'IBM Plex Sans KR',sans-serif}
+  .fill-box:focus{border-color:var(--amber);background:rgba(233,168,71,.06)}
+
+  .guide{background:linear-gradient(180deg,rgba(54,209,139,.08),rgba(54,209,139,.03));border:1px solid rgba(54,209,139,.28);border-radius:16px;padding:24px 26px}
+  .guide-ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:11px 28px;margin-top:4px}
+  .guide-ul li{font-size:14px;color:var(--muted);padding-left:18px;position:relative}
+  .guide-ul li::before{content:'';position:absolute;left:0;top:9px;width:6px;height:6px;border-radius:50%;background:var(--green)}
+  @media(max-width:880px){.guide-ul{grid-template-columns:1fr}}
+
+  .check{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  .ck{display:flex;gap:13px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .ck .box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--green-d);flex-shrink:0;margin-top:2px;position:relative}
+  .ck .box::after{content:'';position:absolute;inset:4px;border-radius:2px;background:rgba(54,209,139,.25)}
+  .ck h4{font-size:14.5px;font-weight:600;margin-bottom:3px}
+  .ck p{font-size:12.5px;color:var(--muted)}
+
+  .tl{position:relative;margin-top:10px}
+  .tl::before{content:'';position:absolute;left:18px;top:8px;bottom:8px;width:2px;background:linear-gradient(var(--green),var(--green-d),var(--line))}
+  .tlrow{display:grid;grid-template-columns:54px 1fr;gap:18px;padding:14px 0;align-items:flex-start}
+  .tlrow .pt{width:38px;height:38px;border-radius:50%;background:var(--panel2);border:2px solid var(--green-d);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--green);z-index:1}
+  .tlrow h4{font-size:15.5px;font-weight:700;margin-bottom:4px}
+  .tlrow p{font-size:13.5px;color:var(--muted)}
+  .tlrow .wk{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--faint);margin-bottom:2px;letter-spacing:1px}
+
+  .mets{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .met{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .met .i{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--green);letter-spacing:1px;margin-bottom:9px}
+  .met h4{font-size:15px;margin-bottom:6px}
+  .met p{font-size:12.5px;color:var(--muted)}
+
+  .rows{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .rw{display:grid;grid-template-columns:200px 1fr;gap:16px;padding:16px 20px;border-bottom:1px solid var(--line);align-items:center}
+  .rw:last-child{border-bottom:none}
+  .rw .k{font-weight:600;font-size:14px;color:var(--txt)}
+  .rw .v{font-size:13.5px;color:var(--muted)}
+  .blank{display:inline-block;min-width:120px;border-bottom:1px dashed var(--faint);color:var(--faint);font-family:'IBM Plex Mono',monospace;font-size:12px}
+
+  footer{padding:40px 0;text-align:center;color:var(--faint);font-size:12.5px}
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(max-width:880px){.g3,.check,.mets{grid-template-columns:1fr}.rw{grid-template-columns:1fr}.nav-links{display:none}}
+</style>
+</head>
+<body>
+
+<nav><div class="nav-in">
+  <div class="brand"><span class="dot"></span> 과사람 · 매쓰홀릭 파일럿 2차 회의</div>
+  <div class="nav-links">
+    <a href="#goal">회의 목표</a>
+    <a href="#center">센터별 활용</a>
+    <a href="#criteria">대상반 기준</a>
+    <a href="#sched">일정</a>
+    <a href="#metric">점검 지표</a>
+    <a href="#agenda">결정 사항</a>
+  </div>
+</div></nav>
+
+<header class="hero wrap">
+  <div class="tag"><span class="dot" style="width:7px;height:7px"></span> 2차 회의 · 파일럿 시범 운영 설계</div>
+  <h1>센터별 <b class="hl">파일럿 시범 운영</b>을<br>어떻게·언제·어느 반으로 시작할까</h1>
+  <p class="lede">1차 회의에서 전환 방향을 공유했고, <b style="color:var(--txt)">매쓰홀릭 교육(1시간)</b>을 이수했습니다. 이번 회의는 각 센터의 <b style="color:var(--txt)">활용 방법·대상반 선정 기준·일정</b>을 정하는 실행 설계 회의입니다.</p>
+  <div class="meta">
+    <span class="chip">1차 회의 · <b>완료</b></span>
+    <span class="chip">매쓰홀릭 교육 · <b>1시간 이수</b></span>
+    <span class="chip">이번 회의 · <b>파일럿 설계</b></span>
+    <span class="chip">대상 · <b>초등관 · 중등 특목관 · 자사관</b></span>
+  </div>
+
+  <div class="prog">
+    <div class="done"><div class="s">STEP 1 · 완료</div><div class="l">1차 회의<br>전환 이유 공유</div></div>
+    <div class="done"><div class="s">STEP 2 · 완료</div><div class="l">매쓰홀릭 교육<br>1시간 이수</div></div>
+    <div class="cur"><div class="s">STEP 3 · 오늘</div><div class="l">2차 회의<br>파일럿 설계</div></div>
+    <div class="next"><div class="s">STEP 4</div><div class="l">파일럿<br>시범 운영</div></div>
+    <div class="next"><div class="s">STEP 5</div><div class="l">평가 후<br>확대 결정</div></div>
+  </div>
+</header>
+
+<section id="goal" class="wrap reveal">
+  <div class="kicker">01 · 이번 회의 목표</div>
+  <h2 class="sec">세 가지 결정</h2>
+  <p class="sec-sub">파일럿은 "작게 시작해 데이터로 검증"이 핵심입니다. 오늘은 아래 셋을 합의해 바로 운영에 들어갈 수 있게 합니다.</p>
+  <div class="grid g3">
+    <div class="card"><div class="rec-label">DECISION 1</div><h3>센터별 활용 방안 확정</h3><p style="font-size:13.5px;color:var(--muted);margin-top:8px">각 센터가 파일럿에서 매쓰홀릭의 어떤 기능을 어떻게 쓸지 정합니다.</p></div>
+    <div class="card"><div class="rec-label">DECISION 2</div><h3>대상반 선정 기준 합의</h3><p style="font-size:13.5px;color:var(--muted);margin-top:8px">"어떤 반을 파일럿으로 삼을지"의 공통 기준을 정하고 반을 지정합니다.</p></div>
+    <div class="card"><div class="rec-label">DECISION 3</div><h3>일정 확정</h3><p style="font-size:13.5px;color:var(--muted);margin-top:8px">시작일·점검일·평가일과 센터별 담당자를 확정합니다.</p></div>
+  </div>
+</section>
+
+<section id="center" class="wrap reveal">
+  <div class="kicker">02 · 센터별 파일럿 활용 방안</div>
+  <h2 class="sec">센터마다 검증할 포인트가 다릅니다</h2>
+  <p class="sec-sub">아래 <b style="color:var(--txt)">전체 추천 가이드</b>를 기준으로, 각 센터는 자기 상황에 맞는 활용·검증 포인트를 <b style="color:var(--amber)">회의 작성칸</b>에 직접 적습니다(클릭해서 타이핑 가능). 공통 목표는 학생 단위 데이터가 실제로 쌓이는지 확인하는 것.</p>
+
+  <div class="guide">
+    <div class="rec-label">★ 전체 추천 가이드 (공통)</div>
+    <ul class="guide-ul">
+      <li>학습지·교재를 매쓰홀릭에서 출제 → 자동채점, <b style="color:var(--txt)">오답 자동출제로 과제 완성도 관리</b></li>
+      <li>달력형 학습현황으로 학생별 <b style="color:var(--txt)">일일 학습을 데이터로 축적</b></li>
+      <li>진단평가(주간·단원 등) 회차 운영으로 <b style="color:var(--txt)">성장 추이 데이터</b> 확보</li>
+      <li>일일/주간 리포트(카톡)로 학부모 소통</li>
+      <li>출제·채점·오답 관리를 <b style="color:var(--txt)">한 곳에서 일원화</b>(이중 업로드 제거)</li>
+    </ul>
+  </div>
+
+  <div class="grid g3" style="margin-top:22px">
+    <div class="card">
+      <div class="hd"><h3>초등관</h3></div>
+      <div class="role">이미 학생 등록 기반 → 전체 흐름 검증</div>
+      <div class="fill">
+        <div class="fill-label">✎ 회의 작성</div>
+        <div class="fill-box" contenteditable="true" data-ph="활용할 기능 · 검증 포인트 · 대상반 · 메모를 적어주세요"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>중등 특목관</h3></div>
+      <div class="role">문제은행 → 학생 등록부터 시작</div>
+      <div class="fill">
+        <div class="fill-label">✎ 회의 작성</div>
+        <div class="fill-box" contenteditable="true" data-ph="활용할 기능 · 검증 포인트 · 대상반 · 메모를 적어주세요"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="hd"><h3>자사관</h3></div>
+      <div class="role">매쓰플랫→오르조 이중 업로드 대체 검증</div>
+      <div class="fill">
+        <div class="fill-label">✎ 회의 작성</div>
+        <div class="fill-box" contenteditable="true" data-ph="활용할 기능 · 검증 포인트 · 대상반 · 메모를 적어주세요"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="criteria" class="wrap reveal">
+  <div class="kicker">03 · 파일럿 대상반 선정 기준</div>
+  <h2 class="sec">"어느 반을 파일럿으로?" — 공통 기준</h2>
+  <p class="sec-sub">아래 기준을 회의에서 합의하고, 각 센터가 후보 반을 지정합니다. 핵심은 <b style="color:var(--txt)">데이터가 빠르게·꾸준히 쌓일 수 있는 반</b>.</p>
+  <div class="check">
+    <div class="ck"><div class="box"></div><div><h4>관리 가능한 규모</h4><p>강사가 데이터를 챙길 수 있는 인원</p></div></div>
+    <div class="ck"><div class="box"></div><div><h4>전담 강사 협조</h4><p>파일럿을 적극 운영할 담당 강사가 있는 반</p></div></div>
+    <div class="ck"><div class="box"></div><div><h4>학습 빈도 높음</h4><p>데이터가 자주 쌓이는 반</p></div></div>
+    <div class="ck"><div class="box"></div><div><h4>진도 안정적</h4><p>특강·시험 일정이 겹치지 않아 운영이 안정적인 반</p></div></div>
+    <div class="ck"><div class="box"></div><div><h4>평가 회차 확보</h4><p>파일럿 기간 내 진단평가 1회 이상 가능</p></div></div>
+  </div>
+  <div class="rows" style="margin-top:22px">
+    <div class="rw"><div class="k">초등관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">초등관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">중등 특목관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">중등 특목관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">중등 자사관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">중등 자사관</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;반명 / 인원&nbsp;&nbsp;&nbsp;</span> · 담당 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+  </div>
+</section>
+
+<section id="sched" class="wrap reveal">
+  <div class="kicker">04 · 파일럿 일정(안)</div>
+  <h2 class="sec">약 4~6주 운영 → 평가 → 확대 결정</h2>
+  <div class="tl">
+    <div class="tlrow"><div class="pt">W0</div><div><div class="wk">준비 주간 · ~__/__</div><h4>계정·반 개설</h4><p>파일럿 반 생성, 학생 명단 준비(특목관은 등록 체계 세팅), 등급(라이트/프리미엄) 결정</p></div></div>
+    <div class="tlrow"><div class="pt">W1</div><div><div class="wk">시작 · __/__</div><h4>파일럿 개시</h4><p>학생 등록·첫 출제·교재채점 시작, 달력형 학습현황 가동</p></div></div>
+    <div class="tlrow"><div class="pt">W2-3</div><div><div class="wk">운영</div><h4>일상 운영 + 첫 진단평가</h4><p>오답/취약 관리, 진단평가 1회, 일일·주간 리포트 학부모 발송 시작</p></div></div>
+    <div class="tlrow"><div class="pt">W4</div><div><div class="wk">중간 점검 · __/__</div><h4>중간 점검 회의</h4><p>센터별 데이터 축적 현황·강사 활용도·문제점 공유, 운영 보정</p></div></div>
+    <div class="tlrow"><div class="pt">W6</div><div><div class="wk">평가 · __/__</div><h4>파일럿 평가 → 확대 결정</h4><p>점검 지표로 성과 평가, 확대 여부·등급·일정 결정, 위드아카 연동 설계 의논</p></div></div>
+  </div>
+</section>
+
+<section id="metric" class="wrap reveal">
+  <div class="kicker">05 · 점검 지표 (성공 기준)</div>
+  <h2 class="sec">무엇으로 "잘 됐다"를 판단할까</h2>
+  <div class="mets" style="margin-top:10px">
+    <div class="met"><div class="i">DATA</div><h4>학생당 학습 기록 수</h4><p>주간 누적 학습·채점 건수 — 데이터가 실제로 쌓이는가</p></div>
+    <div class="met"><div class="i">PROCESS</div><h4>채점·오답 처리율</h4><p>출제 대비 채점·오답과제 처리 비율</p></div>
+    <div class="met"><div class="i">GROWTH</div><h4>진단평가 회차·성취</h4><p>기간 내 평가 횟수와 성취도 변화</p></div>
+    <div class="met"><div class="i">PARENT</div><h4>리포트 발송·반응</h4><p>일일/주간 리포트 발송 수·학부모 피드백</p></div>
+    <div class="met"><div class="i">TEACHER</div><h4>강사 활용도</h4><p>강사가 실제로 매일 쓰는가(정착도)</p></div>
+    <div class="met"><div class="i">자사관</div><h4>오르조 이중작업 감소</h4><p>재업로드 단계가 얼마나 줄었는가</p></div>
+  </div>
+</section>
+
+<section id="agenda" class="wrap reveal">
+  <div class="kicker">06 · 결정 사항</div>
+  <h2 class="sec">오늘 확정할 항목</h2>
+  <div class="rows" style="margin-top:18px">
+    <div class="rw"><div class="k">파일럿 등급</div><div class="v">라이트 — <span class="blank">&nbsp;&nbsp;&nbsp;결정&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">파일럿 시작일</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;__월 __일&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">중간 점검일 / 평가일</div><div class="v"><span class="blank">&nbsp;&nbsp;&nbsp;__/__&nbsp;&nbsp;&nbsp;</span> / <span class="blank">&nbsp;&nbsp;&nbsp;__/__&nbsp;&nbsp;&nbsp;</span></div></div>
+    <div class="rw"><div class="k">센터별 담당 강사</div><div class="v">초등 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span> · 특목 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span> · 자사 <span class="blank">&nbsp;&nbsp;&nbsp;&nbsp;</span></div></div>
+  </div>
+</section>
+
+<footer>과사람 · 매쓰홀릭 파일럿 시범 운영 2차 회의 자료 · 내부 검토용 · 날짜/담당/등급은 회의에서 확정</footer>
+
+<script>
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
